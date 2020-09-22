@@ -1,7 +1,9 @@
 import pandas as pd
+from random import randint
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import ExtraTreesClassifier
+
 
 #Leitura do arquivo
 
@@ -13,17 +15,20 @@ file['class'] = file['class'].replace(2,0)
 
 file['class'] = file['class'].replace(4,1)
 
-#removendo dados com parametros equivocados
+#removendo interrogações do dataset
 
-file_remove = file.loc[file['bare_nuclei']=='?']
+file['bare_nuclei'] = file['bare_nuclei'].replace('?',randint(1,10))
 
-file = file.drop(file_remove.index)
+#exibição do DataSet apos o tratamento
+print("DATA SET\n")
+print(file)
+print("tamanho do DataSet: "+str(file.shape))
 
 #separando tabela de alvos
 
 out = file['class']
 
-#separando a tabela de entrada, removendo o id e os alvos
+#separando a tabela de entrada, removendo valores de alvos
 
 inp = file.drop(columns=['class'])
 
@@ -31,9 +36,18 @@ inp = file.drop(columns=['class'])
 
 inp_train, inp_test, out_train, out_test = train_test_split(inp, out, test_size=0.3)
 
+print('tamanho do conjunto entrada de treino: '+str(inp_train.shape))
+print('tamanho do conjunto alvo de treino: '+str(out_train.shape))
+
+print('tamanho do conjunto entrada de test: '+str(inp_test.shape))
+print('tamanho do conjunto saída de test: '+str(out_test.shape)+'\n')
+
+
 #treinando o conjunto de dados
 
-clf = MLPClassifier(random_state=1, max_iter=300)
+clf = MLPClassifier(activation='logistic', max_iter=750, hidden_layer_sizes=245)
 clf.fit(inp_train, out_train)
 
-print(clf.score(inp_test, out_test))
+#testando o conjunto de dados
+
+print("acuracia: "+str(clf.score(inp_test, out_test)))
